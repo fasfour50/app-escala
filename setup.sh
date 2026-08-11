@@ -1,2 +1,2 @@
-pip install playwright
-playwright install chromium
+#!/bin/bash
+python -m playwright install chromium
