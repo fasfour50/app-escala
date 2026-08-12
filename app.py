@@ -1,210 +1,249 @@
-
 import streamlit as st
-import os
 import asyncio
+import os
 
-from baixar_escala import baixar_pdf_escala
-from gerar_painel import extrair_dados_pdf, gerar_escala_html
+from playwright.async_api import async_playwright
+
+
+URL_IFLIGHT = "https://iflightla.ibsplc.aero/iflight-crew/web/getMainPage"
+
+
+async def testar_login():
+
+    resultado = {}
+
+    async with async_playwright() as p:
+
+        chromium_path = "/usr/bin/chromium"
+
+        # Usa uma pasta separada somente para este teste
+        perfil = os.path.abspath("teste_perfil")
+
+        os.makedirs(perfil, exist_ok=True)
+
+        context = await p.chromium.launch_persistent_context(
+            user_data_dir=perfil,
+            executable_path=chromium_path,
+            headless=True,
+            args=[
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu"
+            ]
+        )
+
+        page = (
+            context.pages[0]
+            if context.pages
+            else await context.new_page()
+        )
+
+        page.set_default_timeout(30000)
+
+        try:
+
+            st.write("1. Abrindo I-Flight...")
+
+            await page.goto(
+                URL_IFLIGHT,
+                wait_until="domcontentloaded",
+                timeout=60000
+            )
+
+            await page.wait_for_timeout(8000)
+
+            resultado["url"] = page.url
+            resultado["titulo"] = await page.title()
+
+            st.write("2. Página carregada.")
+            st.write("URL atual:", page.url)
+            st.write("Título:", await page.title())
+
+            # ------------------------------------------------
+            # Captura o texto visível da página
+            # ------------------------------------------------
+
+            try:
+                texto = await page.locator("body").inner_text(
+                    timeout=10000
+                )
+
+                resultado["texto"] = texto[:5000]
+
+            except Exception as e:
+
+                resultado["texto"] = (
+                    f"Não foi possível ler o texto: {e}"
+                )
+
+            # ------------------------------------------------
+            # Verifica elementos relacionados ao Google
+            # ------------------------------------------------
+
+            google_textos = [
+                "Sign in with Google",
+                "Google",
+                "accounts.google.com",
+                "Choose an account",
+                "Sign in"
+            ]
+
+            encontrados = []
+
+            for item in google_textos:
+
+                try:
+
+                    if item.lower() in (
+                        resultado["texto"].lower()
+                    ):
+                        encontrados.append(item)
+
+                except Exception:
+                    pass
+
+            resultado["google"] = encontrados
+
+            # ------------------------------------------------
+            # Verifica Roster
+            # ------------------------------------------------
+
+            try:
+
+                roster = page.get_by_text(
+                    "Roster",
+                    exact=True
+                ).first
+
+                if await roster.is_visible(
+                    timeout=5000
+                ):
+                    resultado["roster"] = True
+
+                else:
+                    resultado["roster"] = False
+
+            except Exception:
+
+                resultado["roster"] = False
+
+            # ------------------------------------------------
+            # Screenshot para diagnóstico
+            # ------------------------------------------------
+
+            screenshot = "teste_login.png"
+
+            await page.screenshot(
+                path=screenshot,
+                full_page=True
+            )
+
+            resultado["screenshot"] = screenshot
+
+        except Exception as e:
+
+            resultado["erro"] = str(e)
+
+        finally:
+
+            await context.close()
+
+    return resultado
 
 
 # ============================================================
-# CONFIGURAÇÃO DA PÁGINA
+# INTERFACE STREAMLIT
 # ============================================================
 
 st.set_page_config(
-    page_title="Minha Escala I-Flight",
-    page_icon="✈️",
-    layout="wide"
+    page_title="Teste Login I-Flight",
+    page_icon="✈️"
 )
 
+st.title("✈️ Teste de Login I-Flight")
 
-# ============================================================
-# TÍTULO
-# ============================================================
-
-st.title("✈️ Minha Escala I-Flight")
-
-
-# ============================================================
-# CAMINHO PADRÃO DO PDF
-# ============================================================
-
-CAMINHO_PDF = os.path.abspath(
-    os.path.join("downloads", "escala_atual.pdf")
+st.write(
+    "Este teste verifica se o servidor consegue acessar "
+    "o I-Flight e identificar a tela de autenticação."
 )
-
-
-# ============================================================
-# BOTÃO PARA ATUALIZAR A ESCALA
-# ============================================================
 
 if st.button(
-    "🔄 Atualizar escala recente",
+    "🔐 Testar acesso ao I-Flight",
     use_container_width=True
 ):
 
     with st.spinner(
-        "Acessando o I-Flight e baixando sua escala..."
+        "Acessando o I-Flight..."
     ):
 
         try:
 
-            # Executa o Playwright e recebe o caminho
-            # real do arquivo baixado
-            caminho_baixado = asyncio.run(
-                baixar_pdf_escala()
+            resultado = asyncio.run(
+                testar_login()
             )
 
-            # Verifica se o caminho retornado existe
-            if (
-                caminho_baixado
-                and os.path.exists(caminho_baixado)
-            ):
+            st.success(
+                "Teste concluído."
+            )
 
-                tamanho = os.path.getsize(
-                    caminho_baixado
+            st.subheader("Resultado")
+
+            st.write(
+                "URL:",
+                resultado.get("url", "não disponível")
+            )
+
+            st.write(
+                "Título:",
+                resultado.get("titulo", "não disponível")
+            )
+
+            if resultado.get("roster"):
+
+                st.success(
+                    "✅ Roster encontrado. "
+                    "A sessão já está autenticada."
                 )
-
-                if tamanho > 0:
-
-                    st.success(
-                        f"Escala baixada com sucesso! "
-                        f"({tamanho / 1024:.1f} KB)"
-                    )
-
-                    # Guarda o caminho na sessão
-                    st.session_state["pdf"] = (
-                        caminho_baixado
-                    )
-
-                else:
-
-                    st.error(
-                        "O arquivo PDF foi criado, "
-                        "mas está vazio."
-                    )
 
             else:
 
+                st.warning(
+                    "⚠️ Roster não encontrado."
+                )
+
+            if resultado.get("google"):
+
+                st.info(
+                    "Elementos relacionados ao Google encontrados:"
+                )
+
+                st.write(
+                    resultado["google"]
+                )
+
+            st.subheader(
+                "Texto encontrado na página"
+            )
+
+            st.code(
+                resultado.get(
+                    "texto",
+                    "Nenhum texto encontrado."
+                )
+            )
+
+            if resultado.get("erro"):
+
                 st.error(
-                    "O download foi executado, "
-                    "mas o arquivo PDF não foi encontrado "
-                    "no servidor."
+                    "Erro durante o teste:"
+                )
+
+                st.code(
+                    resultado["erro"]
                 )
 
         except Exception as e:
 
             st.error(
-                f"Erro ao baixar a escala: {e}"
+                f"Erro ao executar teste: {e}"
             )
-
-
-# ============================================================
-# DETERMINA QUAL PDF DEVE SER PROCESSADO
-# ============================================================
-
-caminho_para_processar = (
-    st.session_state.get(
-        "pdf",
-        CAMINHO_PDF
-    )
-)
-
-
-# ============================================================
-# PROCESSAMENTO DA ESCALA
-# ============================================================
-
-if os.path.exists(caminho_para_processar):
-
-    try:
-
-        # --------------------------------------------------------
-        # LÊ O PDF
-        # --------------------------------------------------------
-
-        eventos = extrair_dados_pdf(
-            caminho_para_processar
-        )
-
-
-        # --------------------------------------------------------
-        # VERIFICA SE ENCONTROU EVENTOS
-        # --------------------------------------------------------
-
-        if eventos:
-
-            # ----------------------------------------------------
-            # GERA O PAINEL
-            # ----------------------------------------------------
-
-            caminho_html = gerar_escala_html(
-                eventos
-            )
-
-
-            if caminho_html:
-
-                st.success(
-                    "Escala processada com sucesso!"
-                )
-
-
-                # ------------------------------------------------
-                # LÊ O HTML GERADO
-                # ------------------------------------------------
-
-                with open(
-                    caminho_html,
-                    "r",
-                    encoding="utf-8"
-                ) as arquivo:
-
-                    html = arquivo.read()
-
-
-                # ------------------------------------------------
-                # MOSTRA O PAINEL DENTRO DO STREAMLIT
-                # ------------------------------------------------
-
-                st.components.v1.html(
-                    html,
-                    height=750,
-                    scrolling=True
-                )
-
-
-            else:
-
-                st.warning(
-                    "Não foi possível gerar "
-                    "o painel da escala."
-                )
-
-
-        else:
-
-            st.warning(
-                "O PDF foi baixado, mas nenhum evento "
-                "foi encontrado na escala."
-            )
-
-
-    except Exception as e:
-
-        st.error(
-            f"Erro ao processar a escala: {e}"
-        )
-
-
-else:
-
-    # ------------------------------------------------------------
-    # NENHUM PDF DISPONÍVEL
-    # ------------------------------------------------------------
-
-    st.info(
-        "Arquivo de escala não encontrado. "
-        "Clique no botão acima para baixar."
-    )
-
