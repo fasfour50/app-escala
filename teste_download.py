@@ -57,45 +57,26 @@ async def teste():
 
         await page.wait_for_timeout(5000)
 
-        await salvar_debug(page, "debug_01_inicio")
-
-        print("URL atual:")
-        print(page.url)
+        print("Verificando Roster...")
 
         texto = await page.locator("body").inner_text()
-
-        print("Verificando Roster...")
 
         if "Roster" not in texto:
             print("ERRO: Roster não encontrado.")
             print(texto[:5000])
-
-            await salvar_debug(page, "debug_ERRO_roster")
-
             await browser.close()
             return
 
         print("OK: Roster encontrado.")
 
-        print("Abrindo Roster...")
-
-        roster = page.get_by_text("Roster", exact=True)
-
-        print("Quantidade de elementos Roster:", await roster.count())
-
-        if await roster.count() == 0:
-            print("ERRO: Roster não encontrado como elemento.")
-
-            await salvar_debug(page, "debug_ERRO_roster_elemento")
-
-            await browser.close()
-            return
+        roster = page.get_by_text(
+            "Roster",
+            exact=True
+        )
 
         await roster.first.click()
 
         await page.wait_for_timeout(3000)
-
-        await salvar_debug(page, "debug_02_roster")
 
         print("Abrindo Roster Calendar...")
 
@@ -104,32 +85,9 @@ async def teste():
             exact=True
         )
 
-        print(
-            "Quantidade de elementos Roster Calendar:",
-            await calendar.count()
-        )
-
-        if await calendar.count() == 0:
-
-            print("ERRO: Roster Calendar não encontrado.")
-
-            print(
-                await page.locator("body").inner_text()
-            )
-
-            await salvar_debug(
-                page,
-                "debug_ERRO_calendar"
-            )
-
-            await browser.close()
-            return
-
         await calendar.first.click()
 
         await page.wait_for_timeout(3000)
-
-        await salvar_debug(page, "debug_03_calendar")
 
         print("Abrindo Roster Report...")
 
@@ -138,84 +96,194 @@ async def teste():
             exact=True
         )
 
-        print(
-            "Quantidade de elementos Roster Report:",
-            await report.count()
-        )
-
-        if await report.count() == 0:
-
-            print("ERRO: Roster Report não encontrado.")
-
-            print(
-                await page.locator("body").inner_text()
-            )
-
-            await salvar_debug(
-                page,
-                "debug_ERRO_report"
-            )
-
-            await browser.close()
-            return
-
         await report.first.click()
 
         await page.wait_for_timeout(3000)
 
-        await salvar_debug(page, "debug_04_report")
-
-        print("Tela do relatório carregada.")
-
-        print("Texto da página:")
-
-        texto = await page.locator("body").inner_text()
-
-        print(texto[:10000])
-
-        print()
-        print("Procurando opções de PDF...")
-
-        pdf = page.get_by_text(
-            "PDF",
-            exact=True
-        )
-
-        print(
-            "Quantidade de elementos PDF:",
-            await pdf.count()
-        )
-
         await salvar_debug(
             page,
-            "debug_05_antes_pdf"
+            "debug_relatorio"
         )
 
-        if await pdf.count() > 0:
+        print()
+        print("=== CAMPOS SELECT ===")
 
-            await pdf.first.click()
+        selects = page.locator("select")
 
-            print("PDF selecionado.")
+        quantidade_selects = await selects.count()
 
-            await page.wait_for_timeout(2000)
+        print(
+            "Quantidade de SELECTs:",
+            quantidade_selects
+        )
 
-            await salvar_debug(
-                page,
-                "debug_06_pdf_selecionado"
-            )
+        for i in range(quantidade_selects):
 
-        else:
+            try:
 
-            print("PDF não encontrado.")
+                select = selects.nth(i)
+
+                print()
+                print(
+                    f"SELECT {i}"
+                )
+
+                print(
+                    "Nome:",
+                    await select.get_attribute("name")
+                )
+
+                print(
+                    "ID:",
+                    await select.get_attribute("id")
+                )
+
+                print(
+                    "Classe:",
+                    await select.get_attribute("class")
+                )
+
+                print(
+                    "Valor:",
+                    await select.input_value()
+                )
+
+                opcoes = select.locator("option")
+
+                quantidade_opcoes = await opcoes.count()
+
+                print(
+                    "Opções:",
+                    quantidade_opcoes
+                )
+
+                for j in range(quantidade_opcoes):
+
+                    option = opcoes.nth(j)
+
+                    print(
+                        f"  [{j}]",
+                        await option.inner_text(),
+                        "| valor:",
+                        await option.get_attribute("value")
+                    )
+
+            except Exception as e:
+
+                print(
+                    "Erro lendo SELECT:",
+                    e
+                )
 
         print()
-        print("Procurando botões de execução...")
+        print("=== INPUTS ===")
+
+        inputs = page.locator("input")
+
+        quantidade_inputs = await inputs.count()
+
+        print(
+            "Quantidade de INPUTs:",
+            quantidade_inputs
+        )
+
+        for i in range(quantidade_inputs):
+
+            try:
+
+                elemento = inputs.nth(i)
+
+                print()
+                print(
+                    f"INPUT {i}"
+                )
+
+                print(
+                    "Tipo:",
+                    await elemento.get_attribute("type")
+                )
+
+                print(
+                    "Nome:",
+                    await elemento.get_attribute("name")
+                )
+
+                print(
+                    "ID:",
+                    await elemento.get_attribute("id")
+                )
+
+                print(
+                    "Valor:",
+                    await elemento.get_attribute("value")
+                )
+
+                print(
+                    "Placeholder:",
+                    await elemento.get_attribute("placeholder")
+                )
+
+            except Exception as e:
+
+                print(
+                    "Erro lendo INPUT:",
+                    e
+                )
+
+        print()
+        print("=== ELEMENTOS COM TEXTO SELECT FORMAT ===")
+
+        elementos = page.get_by_text(
+            "Select Format",
+            exact=False
+        )
+
+        quantidade = await elementos.count()
+
+        print(
+            "Quantidade:",
+            quantidade
+        )
+
+        for i in range(quantidade):
+
+            try:
+
+                elemento = elementos.nth(i)
+
+                print()
+                print(
+                    "Elemento:",
+                    i
+                )
+
+                print(
+                    "Tag:",
+                    await elemento.evaluate(
+                        "(el) => el.tagName"
+                    )
+                )
+
+                print(
+                    "HTML:",
+                    (await elemento.evaluate(
+                        "(el) => el.outerHTML"
+                    ))[:3000]
+                )
+
+            except Exception as e:
+
+                print(
+                    "Erro:",
+                    e
+                )
+
+        print()
+        print("=== BOTÕES ===")
 
         botoes = page.locator("button")
 
         quantidade = await botoes.count()
-
-        print("Quantidade de botões:", quantidade)
 
         for i in range(quantidade):
 
@@ -225,20 +293,17 @@ async def teste():
                     await botoes.nth(i).inner_text()
                 ).strip()
 
-                print(
-                    f"BOTÃO {i}: [{texto_botao}]"
-                )
+                if texto_botao:
+
+                    print(
+                        f"BOTÃO {i}: [{texto_botao}]"
+                    )
 
             except Exception:
                 pass
 
-        await salvar_debug(
-            page,
-            "debug_07_botoes"
-        )
-
         print()
-        print("Fim do teste de diagnóstico.")
+        print("Diagnóstico concluído.")
 
         await context.close()
         await browser.close()
