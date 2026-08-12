@@ -1,8 +1,9 @@
-﻿import streamlit as st
+﻿import os
+import streamlit as st
 import streamlit.components.v1 as components
-import subprocess
-import os
-import sys
+
+from baixar_escala import baixar_pdf_escala
+
 
 st.set_page_config(
     page_title="Minha Escala",
@@ -10,39 +11,60 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-PASTA = r"C:\iflight"
-HTML = os.path.join(PASTA, "minha_escala.html")
-ATUALIZADOR = os.path.join(PASTA, "atualizar_escala.py")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+HTML = os.path.join(
+    BASE_DIR,
+    "minha_escala.html"
+)
 
 st.title("Minha Escala")
 
-if st.button("Atualizar escala", type="primary"):
-    with st.spinner("Atualizando escala..."):
-        resultado = subprocess.run(
-            [sys.executable, ATUALIZADOR],
-            cwd=PASTA,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace"
-        )
+if st.button(
+    "Atualizar escala",
+    type="primary"
+):
 
-    if resultado.returncode == 0:
-        st.success("Escala atualizada com sucesso.")
-        st.rerun()
-    else:
-        st.error("Erro ao atualizar a escala.")
-        if resultado.stdout:
-            st.text("Saída:")
-            st.code(resultado.stdout)
-        if resultado.stderr:
-            st.text("Erro:")
-            st.code(resultado.stderr)
+    with st.spinner(
+        "Atualizando escala..."
+    ):
+
+        try:
+
+            pdf = baixar_pdf_escala()
+
+            st.success(
+                "Escala atualizada com sucesso."
+            )
+
+            st.rerun()
+
+        except Exception as e:
+
+            st.error(
+                "Não foi possível atualizar a escala."
+            )
+
+            st.exception(e)
 
 if os.path.exists(HTML):
-    with open(HTML, "r", encoding="utf-8") as f:
-        html = f.read()
 
-    components.html(html, height=900, scrolling=True)
+    with open(
+        HTML,
+        "r",
+        encoding="utf-8"
+    ) as arquivo:
+
+        html = arquivo.read()
+
+    components.html(
+        html,
+        height=1200,
+        scrolling=True
+    )
+
 else:
-    st.error("Arquivo minha_escala.html não encontrado.")
+
+    st.error(
+        "Arquivo minha_escala.html não encontrado."
+    )
