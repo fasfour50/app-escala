@@ -108,23 +108,98 @@ async def baixar_pdf_escala_async():
 
         await page.wait_for_timeout(5000)
 
-        print(f"URL atual: {page.url}")
+        print("=" * 60)
+        print("DIAGNÓSTICO DA PÁGINA")
+        print("=" * 60)
 
+        print("URL atual:")
+        print(page.url)
+
+        titulo = await page.title()
+
+        print()
+        print("Título:")
+        print(titulo)
+
+        print()
         print("Verificando Roster...")
 
-        texto = await page.locator("body").inner_text()
+        try:
+
+            texto = await page.locator(
+                "body"
+            ).inner_text(
+                timeout=10000
+            )
+
+        except Exception as e:
+
+            texto = (
+                f"Não foi possível ler o texto da página: {e}"
+            )
+
+        print()
+        print("Texto encontrado:")
+        print(texto[:3000])
+
+        # =====================================================
+        # VERIFICAÇÃO DE AUTENTICAÇÃO
+        # =====================================================
 
         if "Roster" not in texto:
+
+            print()
+            print("=" * 60)
+            print("AUTENTICAÇÃO NÃO DETECTADA")
+            print("=" * 60)
+
+            print("URL atual:")
+            print(page.url)
+
+            print()
+            print("Título:")
+            print(titulo)
+
+            print()
+            print("Texto encontrado:")
+            print(texto[:3000])
+
+            try:
+
+                await page.screenshot(
+                    path="debug_autenticacao.png",
+                    full_page=True
+                )
+
+                print()
+                print(
+                    "Screenshot salvo em: "
+                    "debug_autenticacao.png"
+                )
+
+            except Exception as e:
+
+                print(
+                    f"Não foi possível criar screenshot: {e}"
+                )
 
             await context.close()
             await browser.close()
 
             raise Exception(
-                "O I-Flight não está autenticado nesta sessão."
+                "O I-Flight não está autenticado. "
+                f"URL atual: {page.url} | "
+                f"Título: {titulo}"
             )
 
+        print()
         print("OK: Roster encontrado.")
 
+        # =====================================================
+        # ROSTER
+        # =====================================================
+
+        print()
         print("Abrindo Roster...")
 
         roster_tab = page.get_by_text(
@@ -135,6 +210,10 @@ async def baixar_pdf_escala_async():
         await roster_tab.hover()
 
         await page.wait_for_timeout(1500)
+
+        # =====================================================
+        # ROSTER CALENDAR
+        # =====================================================
 
         print("Abrindo Roster Calendar...")
 
@@ -149,6 +228,10 @@ async def baixar_pdf_escala_async():
 
         await page.wait_for_timeout(4000)
 
+        # =====================================================
+        # ROSTER REPORT
+        # =====================================================
+
         print("Abrindo Roster Report...")
 
         roster_report = page.get_by_text(
@@ -162,6 +245,10 @@ async def baixar_pdf_escala_async():
 
         await page.wait_for_timeout(5000)
 
+        # =====================================================
+        # SELECT FORMAT
+        # =====================================================
+
         print("Selecionando formato...")
 
         select_format = page.get_by_text(
@@ -174,6 +261,10 @@ async def baixar_pdf_escala_async():
         )
 
         await page.wait_for_timeout(1000)
+
+        # =====================================================
+        # PDF
+        # =====================================================
 
         print("Selecionando PDF...")
 
@@ -195,6 +286,10 @@ async def baixar_pdf_escala_async():
 
         await page.wait_for_timeout(1500)
 
+        # =====================================================
+        # RUN
+        # =====================================================
+
         print("Executando relatório...")
 
         run_btn = page.get_by_text(
@@ -214,11 +309,18 @@ async def baixar_pdf_escala_async():
 
         print("Download recebido.")
 
+        # =====================================================
+        # SALVAR PDF
+        # =====================================================
+
         if os.path.exists(CAMINHO_PDF):
 
             try:
+
                 os.remove(CAMINHO_PDF)
+
             except Exception:
+
                 pass
 
         await download.save_as(
@@ -252,6 +354,10 @@ async def baixar_pdf_escala_async():
                 "O PDF foi criado, mas está vazio."
             )
 
+        # =====================================================
+        # VALIDAR PDF
+        # =====================================================
+
         with open(
             CAMINHO_PDF,
             "rb"
@@ -265,12 +371,14 @@ async def baixar_pdf_escala_async():
             await browser.close()
 
             raise Exception(
-                "O arquivo baixado não parece ser um PDF válido."
+                "O arquivo baixado não parece ser "
+                "um PDF válido."
             )
 
         await context.close()
         await browser.close()
 
+        print()
         print("=" * 60)
         print("DOWNLOAD CONCLUÍDO COM SUCESSO")
         print("=" * 60)
