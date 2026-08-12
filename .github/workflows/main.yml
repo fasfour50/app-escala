@@ -37,3 +37,19 @@ jobs:
       - name: Executar teste
         run: |
           python teste_reutilizar_login.py
+
+      - name: Verificar PDF
+        if: always()
+        run: |
+          echo "Procurando PDF..."
+          find . -type f -name "*.pdf" -ls
+
+      - name: Enviar escala como Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: escala-atual
+          path: |
+            downloads/escala/_atual.pdf
+            downloads/escala/*.pdf
+          if-no-files-found: warn
