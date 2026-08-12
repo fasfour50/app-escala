@@ -1,3 +1,4 @@
+```yaml
 name: Teste I-Flight
 
 on:
@@ -26,13 +27,12 @@ jobs:
         env:
           IFLIGHT_LOGIN_STATE: ${{ secrets.IFLIGHT_LOGIN_STATE }}
         run: |
-          mkdir -p estado
-          printf '%s' "$IFLIGHT_LOGIN_STATE" > estado/_login.json
+          printf '%s' "$IFLIGHT_LOGIN_STATE" > estado_login.json
 
       - name: Verificar estado
         run: |
-          ls -l estado/_login.json
-          python -c "import json; json.load(open('estado/_login.json')); print('JSON válido')"
+          ls -l estado_login.json
+          python -c "import json; json.load(open('estado_login.json')); print('JSON válido')"
 
       - name: Executar download da escala
         run: |
@@ -61,3 +61,4 @@ jobs:
             downloads/escala/_atual.pdf
             downloads/escala/*.pdf
           if-no-files-found: warn
+```
