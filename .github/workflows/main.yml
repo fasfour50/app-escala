@@ -1,0 +1,39 @@
+name: Teste I-Flight
+
+on:
+  workflow_dispatch:
+
+jobs:
+  teste:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: |
+          pip install playwright
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Criar estado de login
+        env:
+          IFLIGHT_LOGIN_STATE: ${{ secrets.IFLIGHT_LOGIN_STATE }}
+        run: |
+          mkdir -p estado
+          printf '%s' "$IFLIGHT_LOGIN_STATE" > estado/_login.json
+
+      - name: Verificar estado
+        run: |
+          ls -l estado/_login.json
+          python -c "import json; json.load(open('estado/_login.json')); print('JSON válido')"
+
+      - name: Executar teste
+        run: |
+          python teste_reutilizar_login.py
