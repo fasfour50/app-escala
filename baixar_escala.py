@@ -11,6 +11,7 @@ URL_IFLIGHT = (
 )
 
 PASTA_DOWNLOADS = os.path.abspath("downloads")
+
 CAMINHO_PDF = os.path.join(
     PASTA_DOWNLOADS,
     "escala_atual.pdf"
@@ -76,9 +77,10 @@ async def baixar_pdf_escala_async():
 
     async with async_playwright() as p:
 
-        print("Abrindo Chromium...")
+        print("Abrindo Chromium do sistema...")
 
         browser = await p.chromium.launch(
+            executable_path="/usr/bin/chromium",
             headless=True,
             args=[
                 "--no-sandbox",
