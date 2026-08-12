@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 import os
 import asyncio
@@ -207,4 +207,4 @@ else:
         "Arquivo de escala não encontrado. "
         "Clique no botão acima para baixar."
     )
-```
+
