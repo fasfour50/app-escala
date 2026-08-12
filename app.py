@@ -6,34 +6,16 @@ from baixar_escala import baixar_pdf_escala
 from gerar_painel import extrair_dados_pdf, gerar_escala_html
 
 
-# ============================================================
-# CONFIGURAÇÃO
-# ============================================================
-
 st.set_page_config(
     page_title="Minha Escala I-Flight",
     page_icon="✈️",
     layout="wide"
 )
 
-
-# ============================================================
-# TÍTULO
-# ============================================================
-
 st.title("✈️ Minha Escala I-Flight")
-
-
-# ============================================================
-# CAMINHO DO PDF
-# ============================================================
 
 CAMINHO_PDF = "./downloads/escala_atual.pdf"
 
-
-# ============================================================
-# BOTÃO PARA ATUALIZAR
-# ============================================================
 
 if st.button(
     "🔄 Atualizar escala recente",
@@ -45,59 +27,39 @@ if st.button(
         try:
             asyncio.run(baixar_pdf_escala())
 
-            # Verifica se o arquivo realmente existe
             if os.path.exists(CAMINHO_PDF):
 
                 tamanho = os.path.getsize(CAMINHO_PDF)
 
                 if tamanho > 0:
-
                     st.success(
                         f"Escala baixada com sucesso! "
                         f"({tamanho / 1024:.1f} KB)"
                     )
-
-                    # Guarda o caminho na sessão
-                    st.session_state["pdf"] = CAMINHO_PDF
-
                 else:
-                    st.error(
-                        "O arquivo foi criado, mas está vazio."
-                    )
+                    st.error("O arquivo PDF foi criado, mas está vazio.")
 
             else:
-
                 st.error(
                     "O download foi executado, mas o arquivo PDF "
                     "não foi encontrado no servidor."
                 )
 
         except Exception as e:
-
-            st.error(
-                f"Erro ao baixar a escala: {e}"
-            )
+            st.error(f"Erro ao baixar a escala: {e}")
 
 
 # ============================================================
-# VERIFICA SE EXISTE PDF
+# PROCESSAMENTO DO PDF
 # ============================================================
 
 if os.path.exists(CAMINHO_PDF):
 
     try:
 
-        # ========================================================
-        # EXTRAI OS DADOS
-        # ========================================================
-
         eventos = extrair_dados_pdf(CAMINHO_PDF)
 
         if eventos:
-
-            # ====================================================
-            # GERA O PAINEL
-            # ====================================================
 
             caminho_html = gerar_escala_html(eventos)
 
@@ -105,7 +67,6 @@ if os.path.exists(CAMINHO_PDF):
 
                 st.success("Escala processada com sucesso!")
 
-                # Lê o HTML gerado
                 with open(
                     caminho_html,
                     "r",
@@ -114,7 +75,6 @@ if os.path.exists(CAMINHO_PDF):
 
                     html = arquivo.read()
 
-                # Mostra o painel diretamente dentro do Streamlit
                 st.components.v1.html(
                     html,
                     height=700,
@@ -133,6 +93,12 @@ if os.path.exists(CAMINHO_PDF):
                 "O PDF foi baixado, mas nenhum evento "
                 "foi encontrado na escala."
             )
+
+    except Exception as e:
+
+        st.error(
+            f"Erro ao processar a escala: {e}"
+        )
 
 else:
 
