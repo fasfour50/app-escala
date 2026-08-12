@@ -34,15 +34,23 @@ jobs:
           ls -l estado/_login.json
           python -c "import json; json.load(open('estado/_login.json')); print('JSON válido')"
 
-      - name: Executar teste
+      - name: Executar download da escala
         run: |
-          python teste_reutilizar_login.py
+          python teste_download.py
 
-      - name: Verificar PDF
+      - name: Verificar arquivos gerados
         if: always()
         run: |
-          echo "Procurando PDF..."
-          find . -type f -name "*.pdf" -ls
+          echo "=== ARQUIVOS NA PASTA DO PROJETO ==="
+          find . -maxdepth 5 -type f | sort
+
+          echo ""
+          echo "=== PASTA DOWNLOADS ==="
+          ls -la downloads/ || true
+
+          echo ""
+          echo "=== PASTA ESCALA ==="
+          ls -la downloads/escala/ || true
 
       - name: Enviar escala como Artifact
         if: always()
