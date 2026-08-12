@@ -1,0 +1,58 @@
+name: Atualizar Escala
+
+on:
+  workflow_dispatch:
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Criar estado de login
+        env:
+          IFLIGHT_LOGIN_STATE: ${{ secrets.IFLIGHT_LOGIN_STATE }}
+        run: |
+          printf '%s' "$IFLIGHT_LOGIN_STATE" > estado_login.json
+
+      - name: Verificar estado de login
+        run: |
+          python -c "import json; json.load(open('estado_login.json')); print('JSON válido')"
+
+      - name: Atualizar escala
+        run: |
+          python atualizar_escala.py
+
+      - name: Verificar arquivos gerados
+        if: always()
+        run: |
+          echo "=== ARQUIVOS GERADOS ==="
+          find . -maxdepth 5 -type f | sort
+
+          echo ""
+          echo "=== DOWNLOADS ==="
+          ls -la downloads/ || true
+
+      - name: Enviar escala como Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: escala-atual
+          path: |
+            downloads/escala_atual.pdf
+            downloads/escala/*.pdf
+            minha_escala.html
+          if-no-files-found: warn
