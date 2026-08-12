@@ -7,11 +7,18 @@ async def baixar_pdf_escala():
     
     async with async_playwright() as p:
         print("1. Abrindo o navegador...")
-        context = await p.chromium.launch_persistent_context(
-            user_data_dir="./perfil_chrome",
-            headless=False,
-            args=["--start-maximized"]
-        )
+        chromium_path = "/usr/bin/chromium"
+
+context = await p.chromium.launch_persistent_context(
+    user_data_dir="./perfil_chrome",
+    executable_path=chromium_path,
+    headless=True,
+    args=[
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu"
+    ]
+)
         
         page = context.pages[0] if context.pages else await context.new_page()
         page.set_default_timeout(40000)
