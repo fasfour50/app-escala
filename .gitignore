@@ -1,0 +1,7 @@
+perfil_login/
+estado_login.json
+estado/
+downloads/
+__pycache__/
+.streamlit/
+*.pyc

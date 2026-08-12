@@ -1,0 +1,861 @@
+
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Escala AIMS</title>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+                background-color: #f0f0f0;
+                margin: 0;
+                padding: 10px;
+                color: #000;
+            }
+            .app-bar {
+                background-color: #2b2361;
+                color: #fff;
+                padding: 12px 16px;
+                font-size: 1.25rem;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-radius: 4px 4px 0 0;
+            }
+            .container {
+                max-width: 100%;
+                overflow-x: auto;
+                background: #fff;
+                border: 1px solid #ccc;
+            }
+            .aims-grid {
+                display: flex;
+                width: max-content;
+                min-width: 100%;
+            }
+            .day-column {
+                width: 75px;
+                min-width: 75px;
+                border-right: 1px solid #ccc;
+                display: flex;
+                flex-direction: column;
+                background: #fbeae9;
+            }
+            .day-column.off-day {
+                background: #e8f5e9;
+            }
+            .day-column.today-highlight {
+                background: #fff8e1 !important;
+            }
+            .day-header {
+                text-align: center;
+                padding: 6px 2px;
+                border-bottom: 1px solid #ccc;
+                font-weight: bold;
+                font-size: 0.95em;
+                color: #000;
+                line-height: 1.1;
+                background-color: #f1f3f5;
+            }
+            .day-column.off-day .day-header {
+                background-color: #e8f5e9;
+            }
+            .day-column.today-highlight .day-header {
+                background-color: #ffecb3 !important;
+            }
+            .day-content {
+                padding: 6px 2px;
+                font-size: 1.0em;
+                text-align: center;
+                line-height: 1.2;
+                flex-grow: 1;
+            }
+            .duty-rpt {
+                font-weight: normal;
+                font-size: 1.0em;
+                color: #000;
+                margin-bottom: 8px;
+                padding-bottom: 4px;
+                border-bottom: 1px solid #ccc;
+            }
+            .flight-card {
+                margin-bottom: 10px;
+            }
+            .flight-num {
+                display: block;
+                font-weight: bold;
+                font-size: 1.05em;
+                margin-bottom: 2px;
+                line-height: 1.1;
+            }
+            .flight-time {
+                font-size: 1.0em;
+                font-weight: normal;
+                color: #333;
+            }
+            .flight-stn {
+                font-weight: normal;
+                font-size: 1.0em;
+                color: #333;
+                margin: 1px 0;
+            }
+            .flight-eqp {
+                font-size: 0.95em;
+                font-weight: normal;
+                color: #555;
+                margin-top: 1px;
+            }
+            .continuation-tag {
+                font-weight: bold;
+                font-size: 1.05em;
+                color: #000;
+                margin-bottom: 4px;
+            }
+            .off-text {
+                font-weight: bold;
+                font-size: 1.1em;
+                color: #2b8a3e;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app-bar">
+            <span>â† Escala AIMS</span>
+        </div>
+        <div class="container">
+            <div class="aims-grid">
+    
+        <div class="day-column">
+            <div class="day-header">28Jul<br>Tue</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3609</div>
+                        <div class="flight-time">09:14</div>
+                        <div class="flight-stn">CGH</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-time">10:52</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3572</div>
+                        <div class="flight-time">12:39</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-stn">PMW</div>
+                        <div class="flight-time">13:50</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3573</div>
+                        <div class="flight-time">14:35</div>
+                        <div class="flight-stn">PMW</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-time">15:52</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">29Jul<br>Wed</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3321</div>
+                        <div class="flight-time">06:49</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-stn">CGH</div>
+                        <div class="flight-time">08:21</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>4520</div>
+                        <div class="flight-time">10:50</div>
+                        <div class="flight-stn">CGH</div>
+                        <div class="flight-stn">IGU</div>
+                        <div class="flight-time">12:30</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3482</div>
+                        <div class="flight-time">13:16</div>
+                        <div class="flight-stn">IGU</div>
+                        <div class="flight-stn">CWB</div>
+                        <div class="flight-time">14:23</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">30Jul<br>Thu</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3775</div>
+                        <div class="flight-time">05:21</div>
+                        <div class="flight-stn">CWB</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-time">07:09</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3877</div>
+                        <div class="flight-time">08:19</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-stn">BEL</div>
+                        <div class="flight-time">10:40</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">31Jul<br>Fri</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3227</div>
+                        <div class="flight-time">03:08</div>
+                        <div class="flight-stn">BEL</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">06:46</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3214</div>
+                        <div class="flight-time">08:32</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">MGF</div>
+                        <div class="flight-time">09:48</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">01Aug<br>Sat</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3215</div>
+                        <div class="flight-time">10:29</div>
+                        <div class="flight-stn">MGF</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">11:42</div>
+                        
+                    </div>
+                    <div class="duty-rpt">APZ<br>11:31</div>
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">02Aug<br>Sun</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">03Aug<br>Mon</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">04Aug<br>Tue</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>4666</div>
+                        <div class="flight-time">14:30</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">SJP</div>
+                        <div class="flight-time">15:31</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>4667</div>
+                        <div class="flight-time">16:11</div>
+                        <div class="flight-stn">SJP</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">17:08</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3834</div>
+                        <div class="flight-time">20:37</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">NAT</div>
+                        <div class="flight-time">23:50</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">05Aug<br>Wed</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="continuation-tag">(...)</div>
+                        <div class="flight-stn">NAT</div>
+                        <div class="flight-time">23:50</div>
+                        <div class="flight-time">00:00</div>
+                        <div class="flight-eqp">(31R)</div>
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">06Aug<br>Thu</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3445</div>
+                        <div class="flight-time">02:40</div>
+                        <div class="flight-stn">NAT</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">06:02</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3284</div>
+                        <div class="flight-time">07:56</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">CWB</div>
+                        <div class="flight-time">08:55</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">07Aug<br>Fri</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3283</div>
+                        <div class="flight-time">07:06</div>
+                        <div class="flight-stn">CWB</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">07:59</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3263</div>
+                        <div class="flight-time">09:49</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-time">11:34</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3572</div>
+                        <div class="flight-time">12:35</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-stn">PMW</div>
+                        <div class="flight-time">13:47</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3573</div>
+                        <div class="flight-time">14:30</div>
+                        <div class="flight-stn">PMW</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-time">15:52</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">08Aug<br>Sat</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3720</div>
+                        <div class="flight-time">09:22</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-stn">CNF</div>
+                        <div class="flight-time">10:30</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3721</div>
+                        <div class="flight-time">11:15</div>
+                        <div class="flight-stn">CNF</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-time">12:23</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3953</div>
+                        <div class="flight-time">14:11</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-stn">POA</div>
+                        <div class="flight-time">16:52</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3564</div>
+                        <div class="flight-time">17:35</div>
+                        <div class="flight-stn">POA</div>
+                        <div class="flight-stn">CGH</div>
+                        <div class="flight-time">19:11</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">09Aug<br>Sun</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">10Aug<br>Mon</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column off-day today-highlight">
+            <div class="day-header">11Aug<br>Tue</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">12Aug<br>Wed</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">HSB</div>
+                        <div class="flight-time">03:30-03:30</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3398</div>
+                        <div class="flight-time">07:30</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">MOC</div>
+                        <div class="flight-time">09:00</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3399</div>
+                        <div class="flight-time">09:55</div>
+                        <div class="flight-stn">MOC</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">11:30</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3332</div>
+                        <div class="flight-time">12:40</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">VIX</div>
+                        <div class="flight-time">14:05</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3333</div>
+                        <div class="flight-time">14:55</div>
+                        <div class="flight-stn">VIX</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">16:35</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">13Aug<br>Thu</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3314</div>
+                        <div class="flight-time">12:25</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">BPS</div>
+                        <div class="flight-time">14:15</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3343</div>
+                        <div class="flight-time">14:55</div>
+                        <div class="flight-stn">BPS</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">17:05</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3316</div>
+                        <div class="flight-time">18:50</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">FOR</div>
+                        <div class="flight-time">22:15</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">14Aug<br>Fri</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>4509</div>
+                        <div class="flight-time">14:20</div>
+                        <div class="flight-stn">FOR</div>
+                        <div class="flight-stn">CNF</div>
+                        <div class="flight-time">17:10</div>
+                        <div class="flight-eqp">(320)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3884</div>
+                        <div class="flight-time">18:05</div>
+                        <div class="flight-stn">CNF</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-time">19:30</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3992</div>
+                        <div class="flight-time">21:10</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-stn">NAT</div>
+                        <div class="flight-time">23:55</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">15Aug<br>Sat</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="continuation-tag">(...)</div>
+                        <div class="flight-stn">NAT</div>
+                        <div class="flight-time">23:55</div>
+                        <div class="flight-time">00:00</div>
+                        <div class="flight-eqp">(31R)</div>
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">16Aug<br>Sun</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3445</div>
+                        <div class="flight-time">02:40</div>
+                        <div class="flight-stn">NAT</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">06:05</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">17Aug<br>Mon</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">18Aug<br>Tue</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3202</div>
+                        <div class="flight-time">12:20</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">IGU</div>
+                        <div class="flight-time">14:05</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">19Aug<br>Wed</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3397</div>
+                        <div class="flight-time">05:45</div>
+                        <div class="flight-stn">IGU</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">07:30</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3438</div>
+                        <div class="flight-time">09:10</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">NAT</div>
+                        <div class="flight-time">12:15</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">20Aug<br>Thu</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3835</div>
+                        <div class="flight-time">05:20</div>
+                        <div class="flight-stn">NAT</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">08:50</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">21Aug<br>Fri</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">MCK320</div>
+                        <div class="flight-time">11:00-11:00</div>
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">22Aug<br>Sat</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">HSB</div>
+                        <div class="flight-time">04:00-04:00</div>
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">23Aug<br>Sun</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>8192</div>
+                        <div class="flight-time">07:25</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">AEP</div>
+                        <div class="flight-time">10:30</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>8193</div>
+                        <div class="flight-time">11:45</div>
+                        <div class="flight-stn">AEP</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">14:25</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">24Aug<br>Mon</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">25Aug<br>Tue</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">26Aug<br>Wed</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3640</div>
+                        <div class="flight-time">07:20</div>
+                        <div class="flight-stn">CGH</div>
+                        <div class="flight-stn">VIX</div>
+                        <div class="flight-time">08:50</div>
+                        <div class="flight-eqp">(32S)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3331</div>
+                        <div class="flight-time">09:40</div>
+                        <div class="flight-stn">VIX</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">11:20</div>
+                        <div class="flight-eqp">(32S)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3712</div>
+                        <div class="flight-time">12:35</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">UDI</div>
+                        <div class="flight-time">13:50</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">27Aug<br>Thu</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3619</div>
+                        <div class="flight-time">05:15</div>
+                        <div class="flight-stn">UDI</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-time">06:35</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3340</div>
+                        <div class="flight-time">08:25</div>
+                        <div class="flight-stn">GRU</div>
+                        <div class="flight-stn">GIG</div>
+                        <div class="flight-time">09:25</div>
+                        
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3027</div>
+                        <div class="flight-time">10:50</div>
+                        <div class="flight-stn">GIG</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-time">12:40</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column">
+            <div class="day-header">28Aug<br>Fri</div>
+            <div class="day-content">
+        
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3980</div>
+                        <div class="flight-time">08:40</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-stn">CPV</div>
+                        <div class="flight-time">10:55</div>
+                        <div class="flight-eqp">(32S)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3981</div>
+                        <div class="flight-time">11:45</div>
+                        <div class="flight-stn">CPV</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-time">14:10</div>
+                        <div class="flight-eqp">(32S)</div>
+                    </div>
+                    
+                    <div class="flight-card">
+                        <div class="flight-num">LA<br>3011</div>
+                        <div class="flight-time">16:45</div>
+                        <div class="flight-stn">BSB</div>
+                        <div class="flight-stn">CGH</div>
+                        <div class="flight-time">18:30</div>
+                        
+                    </div>
+                    
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">29Aug<br>Sat</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">30Aug<br>Sun</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+        <div class="day-column off-day">
+            <div class="day-header">31Aug<br>Mon</div>
+            <div class="day-content">
+        <div class="off-text">OFF</div>
+            </div>
+        </div>
+        
+            </div>
+        </div>
+    </body>
+    </html>
+    
