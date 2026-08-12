@@ -1,136 +1,179 @@
 import asyncio
+import base64
 import os
+
+import streamlit as st
 from playwright.async_api import async_playwright
 
 
-async def baixar_pdf_escala():
+URL_IFLIGHT = (
+    "https://iflightla.ibsplc.aero/iflight-crew/web/getMainPage"
+)
 
-    # Caminho absoluto do projeto
-    pasta_downloads = os.path.abspath("downloads")
-    os.makedirs(pasta_downloads, exist_ok=True)
+PASTA_DOWNLOADS = os.path.abspath("downloads")
+CAMINHO_PDF = os.path.join(
+    PASTA_DOWNLOADS,
+    "escala_atual.pdf"
+)
 
-    caminho_pdf = os.path.join(
-        pasta_downloads,
-        "escala_atual.pdf"
+CAMINHO_ESTADO = os.path.abspath(
+    "estado_login.json"
+)
+
+
+def preparar_estado_login():
+    """
+    Cria o arquivo estado_login.json a partir do Secret
+    configurado no Streamlit Cloud.
+    """
+
+    if not hasattr(st, "secrets"):
+        raise Exception(
+            "Os Secrets do Streamlit não estão disponíveis."
+        )
+
+    if "IFLIGHT_LOGIN_STATE" not in st.secrets:
+        raise Exception(
+            "Secret IFLIGHT_LOGIN_STATE não encontrado."
+        )
+
+    estado_base64 = st.secrets["IFLIGHT_LOGIN_STATE"]
+
+    try:
+        dados = base64.b64decode(estado_base64)
+    except Exception as e:
+        raise Exception(
+            f"Não foi possível decodificar o estado de login: {e}"
+        )
+
+    with open(CAMINHO_ESTADO, "wb") as arquivo:
+        arquivo.write(dados)
+
+    tamanho = os.path.getsize(CAMINHO_ESTADO)
+
+    if tamanho == 0:
+        raise Exception(
+            "O estado de login foi criado, mas está vazio."
+        )
+
+    print(
+        f"Estado de login criado: {tamanho} bytes"
     )
 
-    print("=" * 60)
-    print("INICIANDO DOWNLOAD")
-    print("=" * 60)
 
-    print(f"Pasta de downloads: {pasta_downloads}")
-    print(f"Arquivo destino: {caminho_pdf}")
+async def baixar_pdf_escala_async():
+
+    os.makedirs(
+        PASTA_DOWNLOADS,
+        exist_ok=True
+    )
+
+    preparar_estado_login()
+
+    print("=" * 60)
+    print("INICIANDO DOWNLOAD DA ESCALA")
+    print("=" * 60)
 
     async with async_playwright() as p:
 
-        print("1. Abrindo Chromium...")
+        print("Abrindo Chromium...")
 
-        chromium_path = "/usr/bin/chromium"
-
-        context = await p.chromium.launch_persistent_context(
-            user_data_dir=os.path.abspath("perfil_chrome"),
-            executable_path=chromium_path,
+        browser = await p.chromium.launch(
             headless=True,
             args=[
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
-                "--disable-gpu"
-            ]
+                "--disable-gpu",
+            ],
         )
 
-        page = context.pages[0] if context.pages else await context.new_page()
+        context = await browser.new_context(
+            storage_state=CAMINHO_ESTADO,
+            accept_downloads=True,
+        )
+
+        page = await context.new_page()
 
         page.set_default_timeout(40000)
 
-        print("2. Acessando I-Flight...")
+        print("Acessando I-Flight...")
 
         await page.goto(
-            "https://iflightla.ibsplc.aero/iflight-crew/web/getMainPage",
+            URL_IFLIGHT,
             wait_until="domcontentloaded",
-            timeout=60000
+            timeout=60000,
         )
 
         await page.wait_for_timeout(5000)
 
         print(f"URL atual: {page.url}")
 
-        # ==========================================================
-        # VERIFICA LOGIN
-        # ==========================================================
+        print("Verificando Roster...")
 
-        print("3. Procurando Roster...")
+        texto = await page.locator("body").inner_text()
 
-        try:
-
-            roster_tab = page.get_by_text(
-                "Roster",
-                exact=True
-            ).first
-
-            await roster_tab.wait_for(
-                state="visible",
-                timeout=10000
-            )
-
-            print("✅ Roster encontrado.")
-
-        except Exception as e:
-
-            print("❌ Roster não encontrado.")
-            print(f"Detalhes: {e}")
+        if "Roster" not in texto:
 
             await context.close()
+            await browser.close()
 
             raise Exception(
                 "O I-Flight não está autenticado nesta sessão."
             )
 
-        # ==========================================================
-        # ROSTER
-        # ==========================================================
+        print("OK: Roster encontrado.")
 
-        print("4. Abrindo Roster...")
+        print("Abrindo Roster...")
+
+        roster_tab = page.get_by_text(
+            "Roster",
+            exact=True
+        ).first
 
         await roster_tab.hover()
 
         await page.wait_for_timeout(1500)
 
-        print("5. Abrindo Roster Calendar...")
+        print("Abrindo Roster Calendar...")
 
         roster_calendar = page.get_by_text(
             "Roster Calendar",
             exact=False
         ).first
 
-        await roster_calendar.click(force=True)
+        await roster_calendar.click(
+            force=True
+        )
 
         await page.wait_for_timeout(4000)
 
-        print("6. Abrindo Roster Report...")
+        print("Abrindo Roster Report...")
 
         roster_report = page.get_by_text(
             "Roster Report",
             exact=False
         ).first
 
-        await roster_report.click(force=True)
+        await roster_report.click(
+            force=True
+        )
 
         await page.wait_for_timeout(5000)
 
-        # ==========================================================
-        # PDF
-        # ==========================================================
-
-        print("7. Selecionando PDF...")
+        print("Selecionando formato...")
 
         select_format = page.get_by_text(
             "Select Format",
             exact=False
         ).first
 
-        await select_format.click(force=True)
+        await select_format.click(
+            force=True
+        )
 
         await page.wait_for_timeout(1000)
+
+        print("Selecionando PDF...")
 
         try:
 
@@ -139,7 +182,9 @@ async def baixar_pdf_escala():
                 exact=True
             ).first
 
-            await pdf_item.click(force=True)
+            await pdf_item.click(
+                force=True
+            )
 
         except Exception:
 
@@ -148,11 +193,7 @@ async def baixar_pdf_escala():
 
         await page.wait_for_timeout(1500)
 
-        # ==========================================================
-        # DOWNLOAD
-        # ==========================================================
-
-        print("8. Executando relatório...")
+        print("Executando relatório...")
 
         run_btn = page.get_by_text(
             "Run",
@@ -163,62 +204,80 @@ async def baixar_pdf_escala():
             timeout=60000
         ) as download_info:
 
-            await run_btn.click(force=True)
+            await run_btn.click(
+                force=True
+            )
 
         download = await download_info.value
 
-        print("9. Download recebido pelo Playwright.")
+        print("Download recebido.")
 
-        # Remove arquivo anterior
-        if os.path.exists(caminho_pdf):
+        if os.path.exists(CAMINHO_PDF):
 
             try:
-                os.remove(caminho_pdf)
-                print("Arquivo anterior removido.")
+                os.remove(CAMINHO_PDF)
+            except Exception:
+                pass
 
-            except Exception as e:
+        await download.save_as(
+            CAMINHO_PDF
+        )
 
-                print(f"⚠️ Não foi possível remover arquivo anterior: {e}")
+        if not os.path.exists(CAMINHO_PDF):
 
-        # Salva o arquivo
-        await download.save_as(caminho_pdf)
-
-        # ==========================================================
-        # CONFIRMAÇÃO REAL
-        # ==========================================================
-
-        print("=" * 60)
-        print("VERIFICANDO ARQUIVO")
-        print("=" * 60)
-
-        if os.path.exists(caminho_pdf):
-
-            tamanho = os.path.getsize(caminho_pdf)
-
-            print("✅ ARQUIVO EXISTE!")
-            print(f"Caminho: {caminho_pdf}")
-            print(f"Tamanho: {tamanho} bytes")
-
-            if tamanho == 0:
-
-                raise Exception(
-                    "O PDF foi criado, mas está vazio."
-                )
-
-        else:
+            await context.close()
+            await browser.close()
 
             raise Exception(
-                f"Playwright informou que salvou o arquivo, "
-                f"mas ele não existe em: {caminho_pdf}"
+                "O download foi executado, "
+                "mas o arquivo PDF não foi encontrado."
+            )
+
+        tamanho = os.path.getsize(
+            CAMINHO_PDF
+        )
+
+        print(
+            f"PDF salvo: {tamanho} bytes"
+        )
+
+        if tamanho == 0:
+
+            await context.close()
+            await browser.close()
+
+            raise Exception(
+                "O PDF foi criado, mas está vazio."
+            )
+
+        with open(
+            CAMINHO_PDF,
+            "rb"
+        ) as arquivo:
+
+            inicio = arquivo.read(5)
+
+        if inicio != b"%PDF-":
+
+            await context.close()
+            await browser.close()
+
+            raise Exception(
+                "O arquivo baixado não parece ser um PDF válido."
             )
 
         await context.close()
+        await browser.close()
 
-        print("10. Navegador fechado.")
+        print("=" * 60)
+        print("DOWNLOAD CONCLUÍDO COM SUCESSO")
+        print("=" * 60)
 
-        # Retorna o caminho para o app.py
-        return caminho_pdf
+        return CAMINHO_PDF
 
 
-if __name__ == "__main__":
-    asyncio.run(baixar_pdf_escala())
+def baixar_pdf_escala():
+
+    return asyncio.run(
+        baixar_pdf_escala_async()
+    )
