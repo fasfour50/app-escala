@@ -12,7 +12,7 @@ async def teste():
     async with async_playwright() as p:
         print("Abrindo Chromium...")
 
-        browser = await p.chromium.launch(headless=true)
+        browser = await p.chromium.launch(headless=True)
 
         context = await browser.new_context(
             storage_state=ESTADO,
