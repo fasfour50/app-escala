@@ -1,11 +1,10 @@
-```yaml
-name: Teste I-Flight
+name: Atualizar Escala
 
 on:
   workflow_dispatch:
 
 jobs:
-  teste:
+  atualizar:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +18,7 @@ jobs:
 
       - name: Instalar dependências
         run: |
-          pip install playwright
+          pip install -r requirements.txt
           playwright install chromium
           playwright install-deps chromium
 
@@ -29,28 +28,23 @@ jobs:
         run: |
           printf '%s' "$IFLIGHT_LOGIN_STATE" > estado_login.json
 
-      - name: Verificar estado
+      - name: Verificar estado de login
         run: |
-          ls -l estado_login.json
           python -c "import json; json.load(open('estado_login.json')); print('JSON válido')"
 
-      - name: Executar download da escala
+      - name: Atualizar escala
         run: |
-          python teste_download.py
+          python atualizar_escala.py
 
       - name: Verificar arquivos gerados
         if: always()
         run: |
-          echo "=== ARQUIVOS NA PASTA DO PROJETO ==="
+          echo "=== ARQUIVOS GERADOS ==="
           find . -maxdepth 5 -type f | sort
 
           echo ""
-          echo "=== PASTA DOWNLOADS ==="
+          echo "=== DOWNLOADS ==="
           ls -la downloads/ || true
-
-          echo ""
-          echo "=== PASTA ESCALA ==="
-          ls -la downloads/escala/ || true
 
       - name: Enviar escala como Artifact
         if: always()
@@ -58,7 +52,7 @@ jobs:
         with:
           name: escala-atual
           path: |
-            downloads/escala/_atual.pdf
+            downloads/escala_atual.pdf
             downloads/escala/*.pdf
+            minha_escala.html
           if-no-files-found: warn
-```
